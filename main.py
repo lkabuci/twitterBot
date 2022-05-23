@@ -24,8 +24,11 @@ from threading import Thread
 import requests
 from playsound import playsound
 
+CREDS = "/home/redone/Projects/Personal/1337BOT/.credentials/credential.json"
+LAST_TWEET = "/home/redone/Projects/Personal/1337BOT/last_tweet.txt"
+
 def get_credentials():
-    with open("./.credentials/credential.json", "r", encoding="utf-8") as f:
+    with open(CREDS, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -33,18 +36,22 @@ def check_last_tweet():
     # testing!
     # url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
     url = 'https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL'
-    POOL = ["pool", "piscine", "open", "check"]
     headers = {
         "Authorization": f"Bearer {get_credentials()['Bearer']}",
     }
-    response = requests.get(url, headers=headers).json()
-    last_tweet = response["data"][0]["text"].lower()
-    last_tweet_id = response["data"][0]["id"]
-    with open("last_tweet.txt") as f: last_stored_tweet = f.readline().strip()
-    if last_stored_tweet != last_tweet_id:
-        print(last_tweet)
-        return True
-    return False
+    try:
+        response = requests.get(url, headers=headers).json()
+    except ConnectionError:
+        sleep(300)
+        check_last_tweet()
+    else:
+        last_tweet = response["data"][0]["text"].lower()
+        last_tweet_id = response["data"][0]["id"]
+        with open(LAST_TWEET) as f: last_stored_tweet = f.readline().strip()
+        if last_stored_tweet != last_tweet_id:
+            print(last_tweet)
+            return True
+        return False
 
 
 def open_browser():
@@ -83,7 +90,7 @@ def trigger_alert():
 
 
 def keep_searching():
-    sleep(2)
+    sleep(10)
     os.system("clear")
 
 
@@ -100,3 +107,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
