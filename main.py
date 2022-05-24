@@ -1,5 +1,5 @@
 ##############################################################################################
-##      This Bot Will Log you to 1337.ma as soon as any tweet pushed about piscine          ##      
+##      This Bot Will Log you to 1337.ma as soon as any tweet pushed about piscine          ##
 ##      To setup this bot you need first to get a twitterAPI v2 Bearer Token                ##
 ##      create a .credential folder                                                         ##
 ##      inside the .credentials/ create a json file with "credential.json" as a name        ##
@@ -28,6 +28,21 @@ CREDS = "/home/redone/Projects/Personal/1337BOT/.credentials/credential.json"
 LAST_TWEET = "/home/redone/Projects/Personal/1337BOT/last_tweet.txt"
 SOUND = "/home/redone/Projects/Personal/1337BOT/assets/audio.mp3"
 
+KEYWORDS = [
+    "http://candidature.1337.ma",
+    "pool",
+    "open",
+    "dates",
+    "inscription",
+    "piscine",
+    "ouvert",
+    "مسبح",
+    "بول",
+    "ترشيح",
+    "بيسين",
+    "choisissez",
+]
+
 
 def get_credentials():
     with open(CREDS, "r", encoding="utf-8") as f:
@@ -36,8 +51,8 @@ def get_credentials():
 
 def check_last_tweet():
     # testing!
-    # url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
-    url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
+    url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
+    # url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
     headers = {
         "Authorization": f"Bearer {get_credentials()['Bearer']}",
     }
@@ -49,9 +64,9 @@ def check_last_tweet():
     else:
         last_tweet = response["data"][0]["text"].lower()
         last_tweet_id = response["data"][0]["id"]
-        with open(LAST_TWEET) as f:
-            last_stored_tweet = f.readline().strip()
-        if last_stored_tweet == last_tweet_id:
+        # with open(LAST_TWEET) as f:
+        #     last_stored_tweet = f.readline().strip()
+        if any([True if word.lower() in KEYWORDS else False for word in last_tweet]):
             print(last_tweet)
             return True
         return False
@@ -90,7 +105,7 @@ def alert_script():
 def trigger_alert():
     alert_script()
     Thread(target=open_browser).start()
-    Thread(target=alert_sound).start()
+    # Thread(target=alert_sound).start()
 
 
 def keep_searching():
