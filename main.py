@@ -57,7 +57,7 @@ def get_credentials() -> Dict:
 def get_all_tweets() -> Dict:
     # the second url is just a dummy twitter account for testing!
     url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
-    url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
+    # url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
     bearer = get_credentials()["Bearer"]
     headers = {
         "Authorization": f"Bearer {bearer}",
@@ -111,7 +111,7 @@ def alert_script():
 def trigger_alert():
     alert_script()
     Thread(target=open_browser).start()
-    # Thread(target=alert_sound).start()
+    Thread(target=alert_sound).start()
 
 
 def keep_searching():
