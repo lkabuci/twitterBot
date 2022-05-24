@@ -1,3 +1,7 @@
+# TODO 1: ADD TYPE HINTS
+# TODO 2: ADD tests for all functions
+
+
 ##############################################################################################
 ##      This Bot Will Log you to 1337.ma as soon as any tweet pushed about piscine          ##
 ##      To setup this bot you need first to get a twitterAPI v2 Bearer Token                ##
@@ -15,6 +19,7 @@ import json
 import os
 from threading import Thread
 from time import sleep
+from typing import Dict
 
 import requests
 from playsound import playsound
@@ -44,32 +49,33 @@ KEYWORDS = [
 ]
 
 
-def get_credentials():
+def get_credentials() -> Dict:
     with open(CREDS, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def check_last_tweet():
-    # testing!
+def get_all_tweets() -> Dict:
+    # the second url is just a dummy twitter account for testing!
+    url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
     url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
-    # url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
+    bearer = get_credentials()["Bearer"]
     headers = {
-        "Authorization": f"Bearer {get_credentials()['Bearer']}",
+        "Authorization": f"Bearer {bearer}",
     }
     try:
-        response = requests.get(url, headers=headers).json()
-    except ConnectionError:
+        all_tweets = requests.get(url, headers=headers).json()
+    except ConnectionError as e:
+        print(e)
         sleep(300)
-        check_last_tweet()
+        get_all_tweets()
     else:
-        last_tweet = response["data"][0]["text"].lower()
-        last_tweet_id = response["data"][0]["id"]
-        # with open(LAST_TWEET) as f:
-        #     last_stored_tweet = f.readline().strip()
-        if any([True if word.lower() in KEYWORDS else False for word in last_tweet]):
-            print(last_tweet)
-            return True
-        return False
+        return all_tweets
+
+
+def is_keyword_in_last_tweet(tweets: dict = None) -> bool:
+    last_tweet = get_all_tweets()["data"][0]["text"].lower()
+    tweet = last_tweet if tweets is None else tweets
+    return any([True if key.lower() in tweet.lower() else False for key in KEYWORDS])
 
 
 def open_browser():
@@ -85,7 +91,7 @@ def open_browser():
         EC.element_to_be_clickable(
             (
                 By.CSS_SELECTOR,
-                "body > div.cc-window.cc-floating.cc-type-opt-in.cc-theme-block.cc-bottom.cc-right.cc-color-override--390765418 > div > a.cc-btn.cc-allow",
+                "div a.cc-btn.cc-allow",
             )
         )
     ).click()
@@ -116,7 +122,7 @@ def keep_searching():
 def main():
     os.system("clear")
     while True:
-        if check_last_tweet():
+        if is_keyword_in_last_tweet():
             trigger_alert()
             break
         else:

@@ -1,4 +1,12 @@
 {
     "python.formatting.provider": "black",
-    "python.sortImports.args": ["-rc", "--atomic"],
+    "python.sortImports.args": [
+        "-rc",
+        "--atomic"
+    ],
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
 }
