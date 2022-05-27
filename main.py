@@ -9,7 +9,7 @@
 ##      inside the .credentials/ create a json file with "credential.json" as a name        ##
 ##      Inside credential.json                                                              ##
 ##      {                                                                                   ##
-##        "Bearer": "paste your twitter bearer here",                                       ##
+##        "Bearers": "paste your twitter bearer here",                                       ##
 ##        "email": "email@example.com",                                                     ##
 ##        "password": "this is a password"                                                  ##
 ##      }                                                                                   ##
@@ -19,7 +19,8 @@ import json
 import os
 from threading import Thread
 from time import sleep
-from typing import Dict
+from random import choice
+import webbrowser
 
 import requests
 from playsound import playsound
@@ -48,56 +49,84 @@ KEYWORDS = [
     "choisissez",
 ]
 
+BEARER_TOKENS = [
+    "AAAAAAAAAAAAAAAAAAAAAEk7cwEAAAAAzgm1z7Wm4HenPhbgK2s4Iw80rCY%3DS7cDnpdEAkPK5B0BqTTHZRYkMnIuzp08FpP5LnbtpD95NXmqjw",
+    "AAAAAAAAAAAAAAAAAAAAACUOdAEAAAAATt0g0xv%2B%2F%2B7lpurYkGNe6N%2FTS34%3DcafYj3ayCWc9rIzusgH1N2clIUn5a1XgRDTRWfc1dmucHUg3YH",
+    "AAAAAAAAAAAAAAAAAAAAAPwrdAEAAAAAOsez3OwDr57t7w0WKG9QIY1%2BR9c%3Dkp8Mh5iuP2fHrQDLcYAT0xn5RWnW1Wk6x9tdvKlbGSjI54fhKC",
+]
 
-def get_credentials() -> Dict:
+
+
+def create_url():
+    user_id = 971012509032427520
+    # return "https://api.twitter.com/2/users/1527778571326038021/tweets"
+    return f"https://api.twitter.com/2/users/{user_id}/tweets"
+
+
+def get_params():
+    return {"max_results": 5}
+
+
+def bearer_oauth(r):
+    """
+    Method required by bearer token authentication.
+    """
+    token = choice(BEARER_TOKENS)
+    print(token)
+    r.headers["Authorization"] = f"Bearer {token}"
+    return r
+
+
+def connect_to_endpoint(url, params):
+    response = requests.request("GET", url, auth=bearer_oauth, params=params)
+    if response.status_code != 200:
+        raise Exception(
+            f"Request returned an error: {response.status_code} {response.text}"
+        )
+    return response.json()
+
+
+def get_last_tweet():
+    os.system("clear")
+    url = create_url()
+    params = get_params()
+    return connect_to_endpoint(url, params)["data"][0]["text"].lower()
+
+
+def is_keyword_in_last_tweet(tweet=None) -> bool:
+    last_tweet = get_last_tweet()
+    tweet = last_tweet if tweet is None else tweet
+    return any([True if key.lower() in tweet else False for key in KEYWORDS])
+
+
+def get_credentials():
     with open(CREDS, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def get_all_tweets() -> Dict:
-    # the second url is just a dummy twitter account for testing!
-    url = "https://api.twitter.com/2/tweets/search/recent?query=from:1337FIL"
-    # url = "https://api.twitter.com/2/tweets/search/recent?query=from:underm18"
-    bearer = get_credentials()["Bearer"]
-    headers = {
-        "Authorization": f"Bearer {bearer}",
-    }
-    try:
-        all_tweets = requests.get(url, headers=headers).json()
-    except ConnectionError as e:
-        print(e)
-        sleep(300)
-        get_all_tweets()
-    else:
-        return all_tweets
-
-
-def is_keyword_in_last_tweet(tweets: dict = None) -> bool:
-    last_tweet = get_all_tweets()["data"][0]["text"].lower()
-    tweet = last_tweet if tweets is None else tweets
-    return any([True if key.lower() in tweet.lower() else False for key in KEYWORDS])
-
 
 def open_browser():
-    chrome_options = Options()
-    chrome_options.add_experimental_option("detach", True)
-    chrome_options.binary_location = "/usr/bin/brave"
-    chrome_options.add_argument("--kiosk")  # To open Brave in Full Screen
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get("https://candidature.1337.ma/users/sign_in")
-    driver.find_element(By.ID, "user_email").send_keys(get_credentials()["email"])
-    driver.find_element(By.ID, "user_password").send_keys(get_credentials()["password"])
-    WebDriverWait(driver, 5).until(
-        EC.element_to_be_clickable(
-            (
-                By.CSS_SELECTOR,
-                "div a.cc-btn.cc-allow",
-            )
-        )
-    ).click()
-
-    driver.find_element(By.XPATH, '//*[@id="new_user"]/div[2]/div[3]/input').click()
-
+    # options = Options()
+    # options.add_experimental_option("detach", True)
+    # options.binary_location = "/usr/bin/brave"
+    # options.add_argument("--kiosk")  # To open Brave in Full Screen
+    # driver = webdriver.Chrome(options=options)
+    # driver.get("https://candidature.1337.ma/users/sign_in")
+    # driver.find_element(By.ID, "user_email").send_keys(get_credentials()["email"])
+    # driver.find_element(By.ID, "user_password").send_keys(get_credentials()["password"])
+    # WebDriverWait(driver, 5).until(
+    #     EC.element_to_be_clickable(
+    #         (
+    #             By.CSS_SELECTOR,
+    #             "div a.cc-btn.cc-allow",
+    #         )
+    #     )
+    # ).click()
+    # driver.find_element(By.XPATH, '//*[@id="new_user"]/div[2]/div[3]/input').click()
+    # scroll_to_buttom = "window.scrollTo(0, document.documentElement.scrollHeight)"
+    # driver.execute_script(scroll_to_buttom)
+    webbrowser.open("https://candidature.1337.ma/users/sign_in")
+    
 
 def alert_sound():
     os.system("pactl set-sink-volume 0 +500%")
@@ -132,3 +161,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
