@@ -19,8 +19,8 @@ import json
 import os
 from threading import Thread
 from time import sleep
-from random import choice
 import webbrowser
+from itertools import cycle
 
 import requests
 from playsound import playsound
@@ -49,12 +49,11 @@ KEYWORDS = [
     "choisissez",
 ]
 
-BEARER_TOKENS = [
+BEARER_TOKENS = cycle([
     "AAAAAAAAAAAAAAAAAAAAAEk7cwEAAAAAzgm1z7Wm4HenPhbgK2s4Iw80rCY%3DS7cDnpdEAkPK5B0BqTTHZRYkMnIuzp08FpP5LnbtpD95NXmqjw",
     "AAAAAAAAAAAAAAAAAAAAACUOdAEAAAAATt0g0xv%2B%2F%2B7lpurYkGNe6N%2FTS34%3DcafYj3ayCWc9rIzusgH1N2clIUn5a1XgRDTRWfc1dmucHUg3YH",
     "AAAAAAAAAAAAAAAAAAAAAPwrdAEAAAAAOsez3OwDr57t7w0WKG9QIY1%2BR9c%3Dkp8Mh5iuP2fHrQDLcYAT0xn5RWnW1Wk6x9tdvKlbGSjI54fhKC",
-]
-
+])
 
 
 def create_url():
@@ -71,8 +70,8 @@ def bearer_oauth(r):
     """
     Method required by bearer token authentication.
     """
-    token = choice(BEARER_TOKENS)
-    print(token)
+    global BEARER_TOKENS
+    token = next(BEARER_TOKENS)
     r.headers["Authorization"] = f"Bearer {token}"
     return r
 
