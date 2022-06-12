@@ -16,9 +16,7 @@ from time import sleep
 import requests
 from playsound import playsound
 
-CREDS = "/home/redone/Projects/Personal/1337BOT/.credentials/credential.json"
-LAST_TWEET = "/home/redone/Projects/Personal/1337BOT/last_tweet.txt"
-SOUND = "/home/redone/Projects/Personal/1337BOT/assets/audio.mp3"
+SOUND = "./assets/audio.mp3"
 
 # here you need to define a keywords that may be interesting in the new tweet
 KEYWORDS = [
