@@ -1,2 +1,3 @@
-source /home/redone/Projects/Personal/1337BOT/.env/bin/activate
-/home/redone/Projects/Personal/1337BOT/.env/bin/python /home/redone/Projects/Personal/1337BOT/main.py
+path="The path of your clone"
+source "$path/venv/bin/activate"
+$path/venv/bin/python $path/main.py
