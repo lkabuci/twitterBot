@@ -3,3 +3,4 @@ isort==5.10.1
 pytest==7.1.2
 playsound==1.3.0
 requests==2.27.1
+helium
