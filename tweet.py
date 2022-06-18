@@ -1,3 +1,6 @@
+# this script will allow you to create a tweet from terminal
+# in order to use this script you need to add your credentials in creds.py
+
 from helium import *
 from . import creds
 
