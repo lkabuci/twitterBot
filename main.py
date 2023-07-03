@@ -81,6 +81,7 @@ def you_next_step():
     # define what you want to do if a tweet matches the requirements
     pass
 
+
 def alert_sound():
     # trigger sound allert if a tweet matches the requirements
     os.system("pactl set-sink-volume 0 +500%")
